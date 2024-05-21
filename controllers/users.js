@@ -12,12 +12,15 @@ const getUserById = (req, res) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND_ERROR).send({ message: err.message });
-      } if (err.name === "CastError") {
-        return res.status(BAD_REQUEST_ERROR).send({ message: err.message });
+        return res.status(NOT_FOUND_ERROR).send({ message: "User not found" });
+      }
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST_ERROR).send({ message: "Invalid data" });
       }
       console.error(err);
-      return res.status(SERVER_ERROR).send({ message: err.message });
+      return res
+        .status(SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
@@ -26,7 +29,9 @@ function getUsers(req, res) {
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       console.error(err);
-      return res.status(SERVER_ERROR).send({ message: err.message });
+      return res
+        .status(SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
     });
 }
 
@@ -40,9 +45,11 @@ function createUser(req, res) {
     .catch((err) => {
       if (err.name === "ValidationError") {
         console.error(err.message);
-        return res.status(BAD_REQUEST_ERROR).send({ message: err.message });
+        return res.status(BAD_REQUEST_ERROR).send({ message: "Invalid data" });
       }
-      return res.status(SERVER_ERROR).send({ message: err.message });
+      return res
+        .status(SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
     });
 }
 
