@@ -1,7 +1,21 @@
 const express = require("express");
 const app = express();
-const { PATH = 3001 } = process.env;
+const { PORT = 3001 } = process.env;
 const mongoose = require("mongoose");
-mongoose.connect("mongodb://127.0.0.1:27017/wtwr_db");
+const indexRouter = require("./routes/index");
 
-app.listen(PATH);
+app.use((req, res, next) => {
+  req.user = {
+    _id: "664bddc45dd31848c7178adf",
+  };
+  next();
+});
+app.use(express.json());
+app.use("/", indexRouter);
+
+mongoose
+  .connect("mongodb://127.0.0.1:27017/wtwr_db")
+  .then(() => console.log("Connected to Database"))
+  .catch((err) => console.log(err.message));
+
+app.listen(PORT, () => console.log(`App is running on port ${PORT}`));
