@@ -3,6 +3,7 @@ const {
   NOT_FOUND_ERROR,
   BAD_REQUEST_ERROR,
   SERVER_ERROR,
+  FORBIDDEN_ERROR,
 } = require("../utils/errors");
 
 const createItem = (req, res) => {
@@ -22,16 +23,21 @@ const createItem = (req, res) => {
 
 function deleteItem(req, res) {
   const { itemId } = req.params;
-  const userId = req.users._id;
-  Item.findByIdAndDelete(itemId)
+  const userId = req.user._id;
+  Item.findById(itemId)
     .orFail()
     .then((item) => {
-      if (userId !== item.owner) {
+      if (!item) {
+        return res.status(NOT_FOUND_ERROR).send({ message: "Item not found" });
+      }
+      if (!item.owner.equals(userId)) {
         return res
-          .status("Not your")
+          .status(FORBIDDEN_ERROR)
           .send({ message: "Cannot delete items owned by other customers" });
       }
-      res.status(200).send({ message: "Item deleted" });
+      Item.deleteOne(item).then(() => {
+        return res.status(200).send({ message: "Item deleted" });
+      });
     })
     .catch((err) => {
       if (err.name === "CastError") {

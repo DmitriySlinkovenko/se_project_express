@@ -14,14 +14,12 @@ module.exports.auth = (req, res, next) => {
 
   try {
     payload = jwt.verify(token, JWT_SECRET);
-    console.log(payload);
   } catch (err) {
     console.error(err);
     return res.status(UNAUTHORIZED).send({ message: "Authorization Required" });
   }
 
   req.user = payload;
-  console.log(payload);
 
   next();
 };

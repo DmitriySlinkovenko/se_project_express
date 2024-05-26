@@ -65,7 +65,6 @@ function createUser(req, res) {
           });
         })
         .then((user) => {
-          console.log(user);
           res.status(201).send({ name, avatar, email });
         })
         .catch((err) => {
@@ -94,7 +93,6 @@ function login(req, res) {
   }
   User.findUserByCredentials(email, password)
     .then((user) => {
-      console.log(user._id);
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
