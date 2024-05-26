@@ -22,9 +22,17 @@ const createItem = (req, res) => {
 
 function deleteItem(req, res) {
   const { itemId } = req.params;
+  const userId = req.users._id;
   Item.findByIdAndDelete(itemId)
     .orFail()
-    .then(() => res.status(200).send({ message: "Item deleted" }))
+    .then((item) => {
+      if (userId !== item.owner) {
+        return res
+          .status("Not your")
+          .send({ message: "Cannot delete items owned by other customers" });
+      }
+      res.status(200).send({ message: "Item deleted" });
+    })
     .catch((err) => {
       if (err.name === "CastError") {
         return res.status(BAD_REQUEST_ERROR).send({ message: "Invalid data" });
