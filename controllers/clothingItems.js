@@ -35,9 +35,14 @@ function deleteItem(req, res) {
           .status(FORBIDDEN_ERROR)
           .send({ message: "Cannot delete items owned by other customers" });
       }
-      Item.deleteOne(item).then(() => {
-        return res.status(200).send({ message: "Item deleted" });
-      });
+      return Item.deleteOne(item)
+        .then(() => res.status(200).send({ message: "Item deleted" }))
+        .catch((err) => {
+          console.error(err);
+          return res
+            .status(SERVER_ERROR)
+            .send({ message: "An error has occurred on the server." });
+        });
     })
     .catch((err) => {
       if (err.name === "CastError") {

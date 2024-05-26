@@ -1,3 +1,5 @@
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const {
   NOT_FOUND_ERROR,
@@ -6,8 +8,6 @@ const {
   UNAUTHORIZED,
   DUPLICATE_ERROR,
 } = require("../utils/errors");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
 
 const getUserById = (req, res) => {
@@ -47,34 +47,35 @@ function createUser(req, res) {
       .status(BAD_REQUEST_ERROR)
       .send({ message: "Enter a valid email." });
   }
-  User.findOne({ email })
+  return User.findOne({ email })
     .then((user) => {
       if (user) {
         return res
           .status(DUPLICATE_ERROR)
           .send({ message: "Email already exists" });
       }
-      return bcrypt
-        .hash(password, 10)
-        .then((hash) => {
-          return User.create({
-            name,
-            avatar,
-            email,
-            password: hash,
-          });
+      return bcrypt.hash(password, 10).then((hash) =>
+        User.create({
+          name,
+          avatar,
+          email,
+          password: hash,
         })
-        .then((user) => {
-          res.status(201).send({ name, avatar, email });
-        })
-        .catch((err) => {
-          if (err.name === "ValidationError") {
-            console.error(err.message);
+          .then(() => {
+            res.status(201).send({ name, avatar, email });
+          })
+          .catch((err) => {
+            if (err.name === "ValidationError") {
+              console.error(err.message);
+              return res
+                .status(BAD_REQUEST_ERROR)
+                .send({ message: "Invalid data" });
+            }
             return res
-              .status(BAD_REQUEST_ERROR)
-              .send({ message: "Invalid data" });
-          }
-        });
+              .status(SERVER_ERROR)
+              .send({ message: "An error has occurred on the server." });
+          })
+      );
     })
     .catch((err) => {
       console.error(err);
@@ -91,7 +92,7 @@ function login(req, res) {
       .status(BAD_REQUEST_ERROR)
       .send({ message: "Please enter your email and password." });
   }
-  User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
