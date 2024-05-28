@@ -28,17 +28,6 @@ const getUserById = (req, res) => {
     });
 };
 
-function getUsers(req, res) {
-  User.find({})
-    .then((users) => res.status(200).send(users))
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(SERVER_ERROR)
-        .send({ message: "An error has occurred on the server." });
-    });
-}
-
 function createUser(req, res) {
   const { name, avatar, email, password } = req.body;
 
@@ -101,9 +90,14 @@ function login(req, res) {
     })
     .catch((err) => {
       console.error(err);
+      if (err.message === "Incorrect password or email") {
+        return res
+          .status(UNAUTHORIZED)
+          .send({ message: "Invalid email or password" });
+      }
       return res
-        .status(UNAUTHORIZED)
-        .send({ message: "Invalid email or password" });
+        .status(SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
     });
 }
 
@@ -133,7 +127,6 @@ function updateProfile(req, res) {
 
 module.exports = {
   getUserById,
-  getUsers,
   createUser,
   login,
   updateProfile,
