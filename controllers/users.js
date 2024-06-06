@@ -28,9 +28,7 @@ function createUser(req, res, next) {
   const { name, avatar, email, password } = req.body;
 
   if (!email) {
-    return res
-      .status(BAD_REQUEST_ERROR)
-      .send({ message: "Enter a valid email." });
+    next(new BadRequestError("Enter a valid email."));
   }
   return User.findOne({ email })
     .then((user) => {
