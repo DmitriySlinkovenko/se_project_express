@@ -16,11 +16,11 @@ const indexRouter = require("./routes/index");
 app.use(express.json());
 app.use(cors());
 app.use(requestLogger);
-/*app.get("/crash-test", () => {
+app.get("/crash-test", () => {
   setTimeout(() => {
     throw new Error("Server will crash now");
   }, 0);
-});*/
+});
 app.use("/", indexRouter);
 app.use(errorLogger);
 app.use(errors());
