@@ -33,7 +33,7 @@ function createUser(req, res, next) {
   return User.findOne({ email })
     .then((user) => {
       if (user) {
-        next(new ConflictError("Email already exists."));
+        return next(new ConflictError("Email already exists."));
       }
       return bcrypt.hash(password, 10).then((hash) =>
         User.create({
@@ -68,7 +68,7 @@ function login(req, res, next) {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      res.send({ token, user });
+      res.send({ token });
     })
     .catch((err) => {
       if (err.message === "Incorrect password or email") {

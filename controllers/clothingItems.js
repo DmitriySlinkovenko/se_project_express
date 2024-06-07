@@ -2,7 +2,8 @@ const Item = require("../models/clothingItem");
 
 const BadRequestError = require("../errors/BadRequestError");
 const NotFoundError = require("../errors/NotFoundError");
-const UnauthorizedError = require("../errors/UnauthorizedError");
+
+const ForbiddenError = require("../errors/ForbiddenError");
 
 const createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
@@ -23,11 +24,11 @@ function deleteItem(req, res, next) {
     .orFail()
     .then((item) => {
       if (!item) {
-        next(new NotFoundError("Item not found."));
+        return next(new NotFoundError("Item not found."));
       }
       if (!item.owner.equals(userId)) {
-        next(
-          new UnauthorizedError("Cannot delete items owned by other customers.")
+        return next(
+          new ForbiddenError("Cannot delete items owned by other customers.")
         );
       }
       return Item.deleteOne(item)

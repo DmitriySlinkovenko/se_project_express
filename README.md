@@ -10,3 +10,11 @@ Created a database with MongoDB and connected my API to the database
 Created models, routes, and controllers
 Error handling implemented
 Tested the project with Postman and GitHub Actions
+
+## Front and Backend domains
+
+Backend:
+https://api.wtwr.root.sx/
+
+Frontend:
+https://www.wtwr.root.sx/
